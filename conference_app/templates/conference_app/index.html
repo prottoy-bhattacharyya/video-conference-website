@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Index</title>
+</head>
+<body>
+    <h1>Chat</h1>
+    <div id="messages-container">
+
+    </div>
+    <form id="form">
+        <input id="input-msg" autocomplete="off" name="input_msg"/>
+        <button type="submit">Send</button>
+    </form>
+    <script>
+        const url = `ws://${window.location.host}/ws/socket-server/`;
+        const chatSocket = new WebSocket(url);
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            console.log(data);
+        };
+
+        form = document.getElementById('form');
+        form.addEventListener('submit', (e)=>{
+            e.preventDefault();
+            // message = e.target.input_msg.value;
+            message = document.getElementById('input-msg').value.trim();
+            if (!message) {
+                return;
+            }
+            chatSocket.send(JSON.stringify({
+                'type': 'chat_message',
+                'message': message
+            }));
+            console.log('Sent:', message);
+            e.target.input_msg.value = '';
+        })
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            console.log('Received:', data);
+            // const messages = document.getElementById('messages');
+            // const li = document.createElement('li');
+            // li.textContent = data.message;
+            // messages.appendChild(li);
+            if(data.type !== 'chat_message'){
+                return;
+            }
+            const messagesContainer = document.getElementById('messages-container');
+            messagesContainer.innerHTML += `<div>${data.message}</div>`;                         
+        };
+    </script>
+</body>
+</html>
