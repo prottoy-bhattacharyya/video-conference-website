@@ -6,7 +6,8 @@
     <title>Index</title>
 </head>
 <body>
-    <h1>Chat</h1>
+    <h1>Welcome {{name}} </h1>
+    <h2>Group: {{group}}</h2>
     <div id="messages-container">
 
     </div>
@@ -14,10 +15,15 @@
         <input id="input-msg" autocomplete="off" name="input_msg"/>
         <button type="submit">Send</button>
     </form>
+    <button id="leave-btn">Leave</button>
     <script>
         const url = `ws://${window.location.host}/ws/socket-server/`;
         const chatSocket = new WebSocket(url);
-
+        const leaveBtn = document.getElementById('leave-btn');
+        leaveBtn.onclick = function(){
+            chatSocket.close();
+            window.location.href = window.location.origin + '/leave/';
+        }
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
             console.log(data);
@@ -42,15 +48,15 @@
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
             console.log('Received:', data);
-            // const messages = document.getElementById('messages');
-            // const li = document.createElement('li');
-            // li.textContent = data.message;
-            // messages.appendChild(li);
-            if(data.type !== 'chat_message'){
-                return;
+            if ("{{name}}" == data.name) {
+                data.name = "You"
             }
             const messagesContainer = document.getElementById('messages-container');
-            messagesContainer.innerHTML += `<div>${data.message}</div>`;                         
+            if (data.type === 'Connected') {
+                messagesContainer.innerHTML += `<div style="color: green;">${data.message}</div>`;
+                return;
+            }
+            messagesContainer.innerHTML += `<div> ${data.name}: ${data.message} [${data.time}]</div>`;                         
         };
     </script>
 </body>

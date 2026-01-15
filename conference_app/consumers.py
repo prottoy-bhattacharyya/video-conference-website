@@ -1,47 +1,55 @@
 import json
+from urllib import request
 from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
-
+import datetime
 
 class chatConsumer(WebsocketConsumer):
     def connect(self):
-        data = {
+        data_to_send = {
             'type': 'Connected',
-            'message': 'Connected to chat'
+            'message': 'Connected to chat',
         }
-        
-        self.room_group_name = 'a'
+        session_data = self.scope['session']
+        self.room_group_name = session_data['group']
         async_to_sync(self.channel_layer.group_add)(
             self.room_group_name,
             self.channel_name
         )
-
         self.accept()
-        self.send(text_data=json.dumps(data))
+        self.send(text_data=json.dumps(data_to_send))
 
 
     def receive(self, text_data = None, bytes_data = None):
-        data = json.loads(text_data)
-        # message = data['message']
-        data = {
+        session_data = self.scope['session']
+        text_data_json = json.loads(text_data)
+       
+        data_to_send = {
             'type': 'chat_message',
-            'message': data['message']
+            'name': session_data['name'],
+            'message': text_data_json['message'],
+            'time':  datetime.datetime.now().strftime("%H:%M"),
         }
         async_to_sync(self.channel_layer.group_send)(
             self.room_group_name,
-            data
+            data_to_send
         )
-        print(f"group: {self.room_group_name}, channel: {self.channel_name}, Received data: {text_data}")
-    
+        print(f"group: {self.room_group_name}, Received data: {data_to_send}")
+        
 
     def chat_message(self, event):
-        message = event['message']
         data = {
             'type': 'chat_message',
-            'message': message
+            'name': event['name'],
+            'message': event['message'],
+            'time':  event['time'],
         }
         self.send(text_data=json.dumps(data))
 
 
     def disconnect(self, code):
+        self.channel_layer.group_discard(
+            self.room_group_name,
+            self.channel_name
+        )
         print(f"Disconnected with code: {code}")
