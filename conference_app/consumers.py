@@ -21,14 +21,15 @@ class chatConsumer(WebsocketConsumer):
 
 
     def receive(self, text_data = None, bytes_data = None):
+        # TODO: Handle file upload
         session_data = self.scope['session']
         text_data_json = json.loads(text_data)
-       
+
         data_to_send = {
             'type': 'chat_message',
             'name': session_data['name'],
             'message': text_data_json['message'],
-            'time':  datetime.datetime.now().strftime("%H:%M"),
+            'time':  datetime.datetime.now().strftime("%d %b, %Y %I:%M %p"),
         }
         async_to_sync(self.channel_layer.group_send)(
             self.room_group_name,
