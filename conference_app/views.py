@@ -3,9 +3,12 @@ from django.contrib import messages
 # Create your views here.
 
 def join(request):
+    if request.session.get('name') or request.session.get('group'):
+        return redirect('/conference/')
+
     if request.method == 'POST':
         name = request.POST.get('input_name')
-        group = request.POST.get('input_group')
+        group = request.POST.get('input_group').strip()
 
         request.session['name'] = name
         request.session['group'] = group

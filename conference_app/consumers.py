@@ -6,7 +6,7 @@ import datetime
 class chatConsumer(WebsocketConsumer):
     def connect(self):
         data_to_send = {
-            'type': 'Connected',
+            'type': 'connected',
             'message': 'Connected to chat',
         }
         session_data = self.scope['session']
@@ -24,12 +24,23 @@ class chatConsumer(WebsocketConsumer):
         session_data = self.scope['session']
         text_data_json = json.loads(text_data)
 
-        data_to_send = {
-            'type': 'chat_message',
-            'name': session_data['name'],
-            'message': text_data_json['message'],
-            'time':  datetime.datetime.now().strftime("%d %b, %Y %I:%M %p"),
-        }
+
+        data_type = text_data_json.get('type')
+        if data_type == 'chat_message':
+            data_to_send = {
+                'type': 'chat_message',
+                'name': session_data['name'],
+                'message': text_data_json['message'],
+                'time':  datetime.datetime.now().strftime("%d %b, %Y %I:%M %p"),
+            }
+        
+        else:
+            data_to_send = {
+                'type': 'rtc_signal',
+                'name': session_data['name'],
+                'data': text_data_json,
+            }
+
         async_to_sync(self.channel_layer.group_send)(
             self.room_group_name,
             data_to_send
@@ -46,6 +57,11 @@ class chatConsumer(WebsocketConsumer):
         }
         self.send(text_data=json.dumps(data))
 
+    def rtc_signal(self, event):
+        if event['name'] == self.scope['session']['name']:
+            return  # Don't send the signal back to the sender
+        data = event['data']
+        self.send(text_data=json.dumps(data))
 
     def disconnect(self, code):
         self.channel_layer.group_discard(

@@ -1,3 +1,5 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,6 +10,10 @@
 <body>
     <h1>Welcome {{name}} </h1>
     <h2>Group: {{group}}</h2>
+    <div id="video-container" style ="display: flex; gap: 10px; background-color: #e2e8f0;">
+        <video id="video-user-1" autoplay playsinline></video>
+        <video id="video-user-2" autoplay playsinline></video>
+    </div>
     <div id="messages-container">
 
     </div>
@@ -19,51 +25,8 @@
     </form>
     <button id="leave-btn">Leave</button>
     <script>
-        const url = `ws://${window.location.host}/ws/socket-server/`;
-        const chatSocket = new WebSocket(url);
-        const leaveBtn = document.getElementById('leave-btn');
-        const file_upload = document.getElementById('file-upload');
-        const file_descriptions = document.getElementById('file-descriptions');
-
-        chatSocket.onmessage = function(e) {
-            const data = JSON.parse(e.data);
-            console.log(data);
-        };
-
-        form = document.getElementById('form');
-        form.addEventListener('submit', (e)=>{
-            e.preventDefault();
-            // message = e.target.input_msg.value;
-            message = document.getElementById('input-msg').value.trim();
-            if (!message && !file_upload.files.length) {
-                return;
-            }
-            //TODO: Add handle file upload
-            chatSocket.send(JSON.stringify({
-                'type': 'chat_message',
-                'message': message
-            }));
-            console.log('Sent:', message);
-            e.target.input_msg.value = '';
-        })
-        
-        chatSocket.onmessage = function(e) {
-            const data = JSON.parse(e.data);
-            console.log('Received:', data);
-            if ("{{name}}" == data.name) {
-                data.name = "You"
-            }
-            const messagesContainer = document.getElementById('messages-container');
-            if (data.type === 'Connected') {
-                messagesContainer.innerHTML += `<div style="color: green;">${data.message}</div>`;
-                return;
-            }
-            messagesContainer.innerHTML += `<div> ${data.name}: ${data.message} [${data.time}]</div>`;                         
-        };
-        leaveBtn.onclick = function(){
-            chatSocket.close();
-            window.location.href = window.location.origin + '/leave/';
-        };
+        sessionStorage.setItem('storedName', "{{name}}"); 
     </script>
+    <script src="{% static 'js/conference.js' %}"></script>
 </body>
 </html>
