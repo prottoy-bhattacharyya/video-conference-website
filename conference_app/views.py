@@ -1,5 +1,6 @@
 from django.shortcuts import redirect, render
 from django.contrib import messages
+from . import livekit_api
 # Create your views here.
 
 def join(request):
@@ -23,12 +24,17 @@ def conference(request):
         messages.error(request, "Please enter a valid name and group.")
         return redirect('/')
 
+    name = request.session.get('name')
+    group = request.session.get('group')
+
+    token = livekit_api.get_join_token(group, name)
     context = {
-        "name": request.session.get('name'),
-        "group": request.session.get('group'),
+        "name": name,
+        "group": group,
+        "token": token,
     }
     return render(request, 'conference_app/conference.html', context=context)
-
+    
 def leave(request):
     request.session.flush()
     messages.info(request, "You have left the conference.")

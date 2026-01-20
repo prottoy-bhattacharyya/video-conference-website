@@ -14,6 +14,10 @@
         <video id="video-user-1" autoplay playsinline></video>
         <video id="video-user-2" autoplay playsinline></video>
     </div>
+    <div id="buttons-containner">
+        <button id="audio-btn">Mute Audio</button>
+        <button id="video-btn">Mute Video</button>
+    </div>
     <div id="messages-container">
 
     </div>
@@ -24,9 +28,19 @@
         <button type="submit">Send</button>
     </form>
     <button id="leave-btn">Leave</button>
+        <script type="importmap">
+        {
+            "imports": {
+                "livekit-client": "https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"
+            }
+        }
+    </script>
     <script>
         sessionStorage.setItem('storedName', "{{name}}"); 
+        sessionStorage.setItem('storedGroup', "{{group}}");
+        sessionStorage.setItem('storedToken', "{{token}}");
     </script>
     <script src="{% static 'js/conference.js' %}"></script>
+    <!-- <script type="module" src="{% static 'js/sfu.js' %}"></script> -->
 </body>
 </html>

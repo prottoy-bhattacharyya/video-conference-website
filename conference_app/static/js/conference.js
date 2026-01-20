@@ -1,6 +1,12 @@
-const url = `ws://${window.location.host}/ws/socket-server/`;
+const url = `wss://${window.location.host}/ws/socket-server/`;
+
+if (window.location.protocol === 'http:') {
+    url = `ws://${window.location.host}/ws/socket-server/`;
+}
 const chatSocket = new WebSocket(url);
 const leaveBtn = document.getElementById('leave-btn');
+const audioBtn = document.getElementById('audio-btn');
+const videoBtn = document.getElementById('video-btn');
 const file_upload = document.getElementById('file-upload');
 const file_descriptions = document.getElementById('file-descriptions');
 const messagesContainer = document.getElementById('messages-container');
@@ -8,6 +14,9 @@ const messagesContainer = document.getElementById('messages-container');
 let localStream;
 let remoteStream;
 let peerConnection;
+
+var video_value = true;
+var audio_value = true;
 const videoUser1 = document.getElementById('video-user-1');
 const videoUser2 = document.getElementById('video-user-2');
 
@@ -41,9 +50,9 @@ async function create_peer_connection() {
 async function initiate_call() {
     try {
         localStream = await navigator.mediaDevices.getUserMedia({
-            video: true,
-            audio: true
-    });
+            video: video_value,
+            audio: audio_value
+        });
     } catch (error) {
         console.error("Error accessing media devices:", error);
     }
@@ -79,6 +88,25 @@ form.addEventListener('submit', (e)=>{
     e.target.input_msg.value = '';
 });
 
+audioBtn.onclick = function() {
+
+    audio_value = ! audio_value;
+    audioBtn.innerHTML = audio_value ? "Mute Audio" : "Unmute Audio";
+    localStream.getAudioTracks().forEach(track => {
+        track.enabled = audio_value;
+    });
+    console.log("Audio value:", audio_value);
+}
+
+
+videoBtn.onclick = function() {
+    video_value = ! video_value;
+    videoBtn.innerHTML = video_value ? "Mute Video" : "Unmute Video";
+    localStream.getVideoTracks().forEach(track => {
+        track.enabled = video_value;
+    });
+    console.log("Video value:", video_value);
+}
 chatSocket.onmessage = async function(e) {
     const data = JSON.parse(e.data);
     console.log('Received:', data);
@@ -86,13 +114,15 @@ chatSocket.onmessage = async function(e) {
     // Handle different messages
     if (data.type === 'connected') {
         show_connection_message(data);
-        initiate_call();
+        initiate_call(video_value = true, audio_value = true);
     }
 
     else if (data.type === 'chat_message') {
         display_message(data);
     }
-
+    else if (data.type === 'disconnected') {
+        show_connection_message(data);
+    }
     // WebRTC signaling messages
     else if (data.type === 'offer') {
         if (!peerConnection) create_peer_connection();

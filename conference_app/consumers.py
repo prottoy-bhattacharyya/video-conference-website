@@ -64,6 +64,10 @@ class chatConsumer(WebsocketConsumer):
         self.send(text_data=json.dumps(data))
 
     def disconnect(self, code):
+        self.send(text_data=json.dumps({
+            'type': 'disconnected',
+            'message': 'Disconnected from chat',
+        }))
         self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name

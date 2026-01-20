@@ -27,6 +27,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8000',
+    'https://untallied-mallory-unstoppably.ngrok-free.dev'
+]
 
 # Application definition
 
