@@ -29,7 +29,8 @@ ALLOWED_HOSTS = ['*']
 
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000',
-    'https://untallied-mallory-unstoppably.ngrok-free.dev'
+    'https://untallied-mallory-unstoppably.ngrok-free.dev',
+    'https://communist-studied-defining-mem.trycloudflare.com',
 ]
 
 # Application definition

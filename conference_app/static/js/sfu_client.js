@@ -8,7 +8,7 @@ const video_btn = document.getElementById('video-btn');
 const screen_share_btn = document.getElementById('screen-share-btn');
 const leave_btn = document.getElementById('leave-btn');
 
-const livekit_server_url = "wss://untallied-mallory-unstoppably.ngrok-free.dev";
+const livekit_server_url = "https://replication-lambda-pda-ranch.trycloudflare.com";
 const token = sessionStorage.getItem('storedToken');
 
 var camera_on = true;

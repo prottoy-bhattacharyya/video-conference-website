@@ -14,7 +14,6 @@ def join(request):
         request.session['name'] = name
         request.session['group'] = group
 
-        context = {'name': name, 'group': group}
         return redirect('/conference/')
     return render(request, 'conference_app/join.html')
 
