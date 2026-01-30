@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join Conference</title>
+</head>
+<body>
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="message">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <h2>Hello {{name}}</h2>
+    <h1>Create Conference</h1>
+    <form id="create-form" method="POST">
+        {% csrf_token %}
+        <button id="create-btn" name="action" value="create_room" type="submit">Create</button>
+    </form>
+
+    <h1>Join Conference</h1>
+    <form id="join-form" method="POST">
+        {% csrf_token %}
+        <input id="input-name" autocomplete="off" name="input_name" placeholder="Full Name" required/>
+        <input type="text" id="input-group" autocomplete="off" name="input_group" placeholder="Group ID" required/>
+        <button name="action" value="join_room" type="submit">Join Now</button>
+    </form>
+    <script></script>
+</body>
+</html>

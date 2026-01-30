@@ -1,19 +1,21 @@
 const { Room, RoomEvent, Track, VideoPresets } = LivekitClient;
 
-const parentElement = document.getElementById('video-container');
+const video_container = document.getElementById('video-container');
 const messagesContainer = document.getElementById('messages-container');
+const member_count_display = document.getElementById('member-count');
 
 const audio_btn = document.getElementById('audio-btn');
 const video_btn = document.getElementById('video-btn');
 const screen_share_btn = document.getElementById('screen-share-btn');
 const leave_btn = document.getElementById('leave-btn');
 
-const livekit_server_url = "https://replication-lambda-pda-ranch.trycloudflare.com";
+const livekit_server_url = sessionStorage.getItem('livekitServerUrl');
 const token = sessionStorage.getItem('storedToken');
 
 var camera_on = true;
 var mic_on = true;
 var screen_share_on = false; 
+var member_count = 1;
 
 const room = new Room(
     {
@@ -25,14 +27,14 @@ const room = new Room(
     }
 );
 
-async function main() {
+async function initialize() {
     room.prepareConnection(livekit_server_url, token);
 
     await room.connect(livekit_server_url, token);
     console.log('Connected to LiveKit room: ', room.name);
 
     await room.localParticipant.enableCameraAndMicrophone();
-    console.log('Local participant enabled camera and microphone.');
+    console.log('You enabled camera and microphone.');
 
     room
         .on(RoomEvent.TrackSubscribed, handleTrackSubscribed)
@@ -47,10 +49,11 @@ async function main() {
         const videoElement = localVideoTrack.attach();
         videoElement.style.width = '300px';
         videoElement.style.transform = 'scaleX(-1)';
-        parentElement.appendChild(videoElement);
+        video_container.appendChild(videoElement);
     }
 
     room.remoteParticipants.forEach((participant) => {
+        member_count += 1;
         participant.trackPublications.forEach((publication) => {
             if (publication.track) {
                 attachTrack(publication.track, participant);
@@ -58,6 +61,7 @@ async function main() {
         });
     });
 
+    member_count_display.innerHTML = `${member_count} Members Online`;
 }
 
 
@@ -67,17 +71,28 @@ function attachTrack(track, participant) {
         element.style.width = '300px';
         element.setAttribute('data-participant-id', participant.identity);
         element.innerHTML = participant.identity;
-        parentElement.appendChild(element);
+        video_container.appendChild(element);
     }
 }
 
 function handleTrackSubscribed(track, publication, participant) {
+    messagesContainer.innerHTML += `<div style="color: green;">${participant.identity} Joined the room</div>`;
     attachTrack(track, participant);
+    updateMemberCountDisplay();
 }
 
 function handleTrackUnsubscribed(track, publication, participant) {
     track.detach();
-    messagesContainer.innerHTML += `<div>${participant.identity} Disconnected from room</div>`;
+    updateMemberCountDisplay();
+    messagesContainer.innerHTML += `<div style="color: red;">${participant.identity} Disconnected from room</div>`;
+}
+
+function updateMemberCountDisplay() {
+    member_count = 1;
+    room.remoteParticipants.forEach((participant) => {
+        member_count += 1;
+    });
+    member_count_display.innerHTML = `${member_count} Members Online`;
 }
 
 audio_btn.addEventListener('click',async () => {
@@ -104,4 +119,4 @@ screen_share_btn.addEventListener('click',async () => {
 
 });
 
-main();
+initialize();

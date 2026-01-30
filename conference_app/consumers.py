@@ -2,13 +2,14 @@ import json
 from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
 import datetime
+from . import values
+import redis
+
+r = redis.Redis(host='localhost', port=6379, decode_responses=True)
 
 class chatConsumer(WebsocketConsumer):
     def connect(self):
-        data_to_send = {
-            'type': 'connected',
-            'message': 'Connected to chat',
-        }
+        
         session_data = self.scope['session']
         self.room_group_name = session_data['group']
         async_to_sync(self.channel_layer.group_add)(
@@ -16,7 +17,16 @@ class chatConsumer(WebsocketConsumer):
             self.channel_name
         )
         self.accept()
+        values.member_count[self.room_group_name] += 1
+        r.hset("members_count", mapping = {
+            self.room_group_name: 
+        })
+        data_to_send = {
+            'type': 'connected',
+            'message': 'Connected to chat',
+        }
         self.send(text_data=json.dumps(data_to_send))
+        print(f"Connected to group: {self.room_group_name}, Total members: {values.member_count[self.room_group_name]}")
 
 
     def receive(self, text_data = None, bytes_data = None):
@@ -56,4 +66,11 @@ class chatConsumer(WebsocketConsumer):
             self.room_group_name,
             self.channel_name
         )
+        values.member_count[self.room_group_name] -= 1
+        print(f"Disconnected from group: {self.room_group_name}, Total members: {values.member_count.get(self.room_group_name, 0)}")
+        
+        if values.member_count[self.room_group_name] <= 0:
+            del values.member_count[self.room_group_name]
+            print(f"Deleted group: {self.room_group_name}")
+
         print(f"Disconnected with code: {code}")

@@ -1,0 +1,15 @@
+<!-- myapp/templates/myapp/my_page.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    About Us - My Website
+{% endblock %}
+
+{% block style %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/signin.css' %}">
+{% endblock %}
+
+{% block content %}
+    <h1>Signin</h1>
+{% endblock %}

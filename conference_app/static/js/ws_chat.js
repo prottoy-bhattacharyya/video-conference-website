@@ -7,13 +7,16 @@ const chatSocket = new WebSocket(ws_url);
 const leaveBtn = document.getElementById('leave-btn');
 
 
-
 form = document.getElementById('form');
 form.addEventListener('submit', (e)=>{
     e.preventDefault();
-    // message = e.target.input_msg.value;
     message = document.getElementById('input-msg').value.trim();
     
+    if (message === '') {
+        alert("Cannot send empty message.");
+        return;
+    }
+
     chatSocket.send(JSON.stringify({
         'type': 'chat_message',
         'message': message
@@ -26,7 +29,6 @@ chatSocket.onmessage = async function(e) {
     const data = JSON.parse(e.data);
     console.log('Received:', data);
     
-    // Handle different messages
     if (data.type === 'connected') {
         console.log('WebSocket connected:', data.message);
         messagesContainer.innerHTML += `<div style="color: green;">${data.message}</div>`;

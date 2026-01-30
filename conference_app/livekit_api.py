@@ -1,8 +1,6 @@
 from livekit import api
-
+from . import values
 def get_join_token(room_name, participant_name):
-
-    # Define permissions
     grant = api.VideoGrants(
         room_join=True,
         room=room_name,
@@ -11,11 +9,12 @@ def get_join_token(room_name, participant_name):
         
     )
 
-    api_key = "devkey"
-    api_secret = "secret"
-    # Generate token (Valid for 24 hours)
+    api_key = values.api_key
+    api_secret = values.api_secret
+
     access_token = api.AccessToken(api_key, api_secret) \
         .with_identity(participant_name) \
         .with_grants(grant)
 
+    # valid for 24 hours
     return access_token.to_jwt()

@@ -9,7 +9,8 @@
 </head>
 <body>
     <h1>Welcome {{name}} </h1>
-    <h2>Group: {{group}}</h2>
+    <h2>Group ID: {{group}}</h2>
+    <h3 id="member-count"></h3>
     <div id="video-container" style ="display: flex; gap: 10px; background-color: #e2e8f0;">
         
     </div>
@@ -34,6 +35,7 @@
         sessionStorage.setItem('storedName', "{{name}}"); 
         sessionStorage.setItem('storedGroup', "{{group}}");
         sessionStorage.setItem('storedToken', "{{token}}");
+        sessionStorage.setItem('livekitServerUrl', "{{livekit_server_url}}");
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script>
