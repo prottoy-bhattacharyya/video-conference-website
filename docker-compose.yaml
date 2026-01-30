@@ -1,0 +1,21 @@
+services:
+  livekit:
+    image: livekit/livekit-server:latest
+    container_name: livekit-server
+    # Ports must be explicitly mapped on Docker Desktop
+    ports:
+      - "7880:7880"             # HTTP / WebSocket Signaling
+      - "7881:7881"             # WebRTC over TCP (Fallback)
+      - "50000-50050:50000-50050/udp" # WebRTC Media (UDP)
+    environment:
+      # Fix: Using the Map syntax to avoid YAML parsing errors
+      LIVEKIT_KEYS: 
+        "devkey: secret"
+    # --dev: Bypasses SSL for localhost
+    # --node-ip: Critical for Docker Desktop so it tells the browser to send video to localhost
+    command: 
+      --dev 
+      --bind 0.0.0.0 
+      --node-ip 127.0.0.1
+    restart: 
+      unless-stopped

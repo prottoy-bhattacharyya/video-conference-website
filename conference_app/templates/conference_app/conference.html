@@ -11,36 +11,34 @@
     <h1>Welcome {{name}} </h1>
     <h2>Group: {{group}}</h2>
     <div id="video-container" style ="display: flex; gap: 10px; background-color: #e2e8f0;">
-        <video id="video-user-1" autoplay playsinline></video>
-        <video id="video-user-2" autoplay playsinline></video>
+        
     </div>
     <div id="buttons-containner">
         <button id="audio-btn">Mute Audio</button>
         <button id="video-btn">Mute Video</button>
+        <button id="screen-share-btn">Share Screen</button>
     </div>
     <div id="messages-container">
 
     </div>
-    <div id="file-descriptions"></div>
+
     <form id="form">
         <input id="input-msg" autocomplete="off" name="input_msg"/>
-        <input type="file" id="file-upload" multiple size="50" name="file_upload"/>
         <button type="submit">Send</button>
     </form>
+
     <button id="leave-btn">Leave</button>
-        <script type="importmap">
-        {
-            "imports": {
-                "livekit-client": "https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"
-            }
-        }
-    </script>
+
+
     <script>
         sessionStorage.setItem('storedName', "{{name}}"); 
         sessionStorage.setItem('storedGroup', "{{group}}");
         sessionStorage.setItem('storedToken', "{{token}}");
     </script>
-    <script src="{% static 'js/conference.js' %}"></script>
-    <!-- <script type="module" src="{% static 'js/sfu.js' %}"></script> -->
+
+    <script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script>
+
+    <script src="{% static 'js/sfu_client.js' %}"></script>
+    <script src="{% static 'js/ws_chat.js' %}"></script>
 </body>
 </html>
