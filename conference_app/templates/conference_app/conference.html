@@ -1,46 +1,102 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-<div class="flex flex-col h-screen overflow-hidden">
-    <header class="p-4 flex justify-between items-center bg-slate-900 border-b border-slate-800">
+<div class="flex flex-col h-screen overflow-hidden bg-slate-950">
+    <header class="p-4 flex justify-between items-center bg-slate-900/50 border-b border-slate-800 z-10">
         <div class="flex items-center gap-4">
-            <h1 class="font-bold text-indigo-400">Room: {{group}}</h1>
-            <span id="member-count" class="text-xs bg-slate-800 px-2 py-1 rounded-md text-slate-400">0 Members Online</span>
+            <h1 class="font-bold text-indigo-400 tracking-tight">Meet Sync <span class="text-slate-500 font-normal mx-2">|</span> <span class="text-slate-300">{{group}}</span></h1>
+            <span id="member-count" class="text-[10px] uppercase tracking-widest bg-indigo-500/10 px-2 py-1 rounded text-indigo-400 border border-indigo-500/20">0 Members</span>
         </div>
-        <button id="leave-btn" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-sm font-bold transition">Leave Room</button>
+        <button id="leave-btn" class="bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white border border-red-500/20 px-4 py-2 rounded-lg text-sm font-bold transition-all duration-300">Leave</button>
     </header>
 
-    <div class="flex flex-1 overflow-hidden">
-        <main class="flex-1 bg-black p-4 relative overflow-y-auto">
+    <div class="flex flex-1 overflow-hidden relative">
+        <main class="flex-1 bg-black p-4 overflow-y-auto transition-all duration-300" id="main-video-area">
             <div id="video-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-max">
                 </div>
         </main>
 
-        <aside class="w-80 bg-slate-900 border-l border-slate-800 flex flex-col hidden lg:flex">
-            <div class="p-4 border-b border-slate-800 font-bold">In-call Messages</div>
-            <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-4 text-sm">
+        <aside id="chat-panel" class="fixed top-0 right-0 h-full w-80 bg-slate-900 border-l border-slate-800 flex flex-col translate-x-full transition-transform duration-300 ease-in-out z-20 shadow-2xl">
+            <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/80 sticky top-0">
+                <span class="font-bold text-slate-200">In-call Messages</span>
+                <button id="close-chat" class="p-1 hover:bg-slate-800 rounded-full transition text-slate-400">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-4 text-sm scrollbar-hide">
                 </div>
-            <form id="form" class="p-4 border-t border-slate-800 flex gap-2">
-                <input id="input-msg" class="flex-1 bg-slate-800 rounded-lg px-3 py-2 text-sm outline-none" placeholder="Send message..." autocomplete="off">
-                <button type="submit" class="bg-indigo-600 p-2 rounded-lg hover:bg-indigo-500 transition">
-                    <i data-lucide="send-horizontal" class="w-4 h-4"></i>
+
+            <form id="form" class="p-4 border-t border-slate-800 bg-slate-900 flex gap-2">
+                <input id="input-msg" class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 transition" placeholder="Type a message..." autocomplete="off">
+                <button type="submit" class="bg-indigo-600 p-2.5 rounded-xl hover:bg-indigo-500 transition shadow-lg shadow-indigo-500/20">
+                    <i data-lucide="send-horizontal" class="w-4 h-4 text-white"></i>
                 </button>
             </form>
         </aside>
     </div>
 
-    <footer class="p-4 bg-slate-900 border-t border-slate-800 flex justify-center gap-4">
-        <button id="audio-btn" class="p-4 rounded-full bg-slate-800 hover:bg-slate-700 transition">
-            <i data-lucide="mic" class="w-6 h-6"></i>
-        </button>
-        <button id="video-btn" class="p-4 rounded-full bg-slate-800 hover:bg-slate-700 transition">
-            <i data-lucide="video" class="w-6 h-6"></i>
-        </button>
-        <button id="screen-share-btn" class="p-4 rounded-full bg-slate-800 hover:bg-slate-700 transition">
-            <i data-lucide="monitor-up" class="w-6 h-6"></i>
+    <footer class="p-6 bg-slate-900/80 backdrop-blur-md border-t border-slate-800 flex justify-center items-center gap-6 z-10">
+        <div class="flex gap-4">
+            <button id="audio-btn" class="p-4 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 transition-all border border-slate-700">
+                <i data-lucide="mic"></i>
+            </button>
+            <button id="video-btn" class="p-4 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 transition-all border border-slate-700">
+                <i data-lucide="video"></i>
+            </button>
+            <button id="screen-share-btn" class="p-4 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 transition-all border border-slate-700">
+                <i data-lucide="monitor-up"></i>
+            </button>
+        </div>
+        
+        <div class="h-8 w-[1px] bg-slate-700 mx-2"></div>
+
+        <button id="chat-toggle-btn" class="p-4 rounded-2xl bg-slate-800 hover:bg-indigo-600 text-slate-200 transition-all border border-slate-700 relative">
+            <i data-lucide="message-square"></i>
+            <span id="unread-dot" class="hidden absolute top-3 right-3 w-3 h-3 bg-indigo-500 border-2 border-slate-900 rounded-full"></span>
         </button>
     </footer>
 </div>
+
+<script>
+    const chatPanel = document.getElementById('chat-panel');
+const chatToggleBtn = document.getElementById('chat-toggle-btn');
+const closeChatBtn = document.getElementById('close-chat');
+const mainVideoArea = document.getElementById('main-video-area');
+const unreadDot = document.getElementById('unread-dot');
+
+let isChatOpen = false;
+
+function toggleChat() {
+    isChatOpen = !isChatOpen;
+    
+    if (isChatOpen) {
+        // Open the panel
+        chatPanel.classList.remove('translate-x-full');
+        unreadDot.classList.add('hidden'); // Clear unread dot when opening
+        
+        // On large screens, push the video area over
+        if (window.innerWidth > 1024) {
+            mainVideoArea.style.marginRight = "320px";
+        }
+    } else {
+        // Close the panel
+        chatPanel.classList.add('translate-x-full');
+        mainVideoArea.style.marginRight = "0";
+    }
+}
+
+chatToggleBtn.addEventListener('click', toggleChat);
+closeChatBtn.addEventListener('click', toggleChat);
+
+// Optional: Automatically show unread dot if chat is closed and a message arrives
+// You would put this inside your chatSocket.onmessage function in ws_chat.js
+/*
+if (!isChatOpen) {
+    unreadDot.classList.remove('hidden');
+}
+*/
+</script>
 
 <script>
     sessionStorage.setItem('storedName', "{{name}}"); 

@@ -22,7 +22,7 @@ form.addEventListener('submit', (e)=>{
         'message': message
     }));
     console.log('Sent:', message);
-    e.target.input_msg.value = '';
+    document.getElementById('input-msg').value = '';
 });
 
 chatSocket.onmessage = async function(e) {
@@ -54,7 +54,7 @@ function display_message(data) {
     
     messagesContainer.innerHTML += `
         <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
-            <span class="text-[10px] text-slate-500 mb-1">${nameLabel} • ${data.time}</span>
+            <span class="text-[12px] text-slate-500 mb-1">${nameLabel} • ${data.time}</span>
             <div class="px-3 py-2 rounded-2xl max-w-[80%] ${isMe ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-slate-800 text-slate-200 rounded-tl-none'}">
                 ${data.message}
             </div>
