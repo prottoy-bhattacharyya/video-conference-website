@@ -49,11 +49,15 @@ leaveBtn.onclick = function(){
 
 function display_message(data) {
     var storedName = sessionStorage.getItem('storedName');
-    if (storedName == data.name) {
-        data.name = "You";
-    }
-    messagesContainer.innerHTML += `<div> 
-                                        ${data.name}: ${data.message} 
-                                        [${data.time}]
-                                    </div>`;    
+    let isMe = storedName == data.name;
+    let nameLabel = isMe ? "You" : data.name;
+    
+    messagesContainer.innerHTML += `
+        <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
+            <span class="text-[10px] text-slate-500 mb-1">${nameLabel} • ${data.time}</span>
+            <div class="px-3 py-2 rounded-2xl max-w-[80%] ${isMe ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-slate-800 text-slate-200 rounded-tl-none'}">
+                ${data.message}
+            </div>
+        </div>`;
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }

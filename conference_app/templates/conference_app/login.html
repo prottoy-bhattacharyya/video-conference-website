@@ -1,21 +1,28 @@
-<!-- myapp/templates/myapp/my_page.html -->
 {% extends 'base.html' %}
-{% load static %}
-{% block title %}
-    About Us - My Website
-{% endblock %}
-
-{% block style %}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/login.css' %}">
-{% endblock %}
+{% block title %}Login - Meet Sync{% endblock %}
 
 {% block content %}
-    <h1>Login</h1>
-    <form method="POST">
-        {% csrf_token %}
-        <input type="text" name="username" placeholder="Username or Email" required/>
-        <input type="password" name="password" placeholder="Password" required/>
-        <button type="submit">Login</button>
-    </form>
-    <a href="/signin">Sign In</a>
+<div class="flex-1 flex items-center justify-center p-6">
+    <div class="glass-card w-full max-auto max-w-md p-8 rounded-2xl shadow-2xl">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-indigo-400">Meet Sync</h1>
+            <p class="text-slate-400 mt-2">Welcome back! Please login.</p>
+        </div>
+        <form method="POST" class="space-y-4">
+            {% csrf_token %}
+            <div>
+                <label class="block text-sm font-medium mb-1">Username</label>
+                <input type="text" name="username" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 outline-none transition" placeholder="Enter username" required>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">Password</label>
+                <input type="password" name="password" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 outline-none transition" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 rounded-lg transition duration-200">Login</button>
+        </form>
+        <p class="mt-6 text-center text-slate-400 text-sm">
+            Don't have an account? <a href="/signin" class="text-indigo-400 hover:underline">Sign up</a>
+        </p>
+    </div>
+</div>
 {% endblock %}
