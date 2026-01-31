@@ -5,6 +5,15 @@ from django.contrib import messages
 from . import livekit_api, values
 # Create your views here.
 
+"""
+4 session variables
+
+username :for login
+password :for login
+nickname :name for join group, default: username
+group :for group id
+"""
+
 def login(request):
     if request.session.get('name') and request.session.get('password'):
         return redirect('/home/')
@@ -39,21 +48,14 @@ def home(request):
 
     if request.method == 'POST':
         if request.POST.get('action') == 'create_room':
-            name = request.session.get('name')
-            group = ''
-            while group in values.member_count.keys():
-                group = ''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=6))
+            group = ''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=6))
 
             print("Created group: ", group)
-            values.member_count[group] = 0
+            request.session['group'] = group
         
         elif request.POST.get('action') == 'join_room':
-            group = request.POST.get('input_group').strip()
-
-            if group not in values.member_count.keys():
-                print("Invalid group join attempt: ", group)
-                messages.error(request, "The group you are trying to join does not exist.")
-                return redirect('/home/')
+            request.session['nickname'] = request.POST.get('input_name').strip()
+            request.session['group'] = request.POST.get('input_group').strip()
 
         return redirect('/conference/')
     
@@ -68,7 +70,7 @@ def conference(request):
         messages.error(request, "Please enter a valid name and group.")
         return redirect('/home/')
 
-    name = request.session.get('name')
+    name = request.session.get('nickname') or request.session.get('name')
     group = request.session.get('group')
 
     token = livekit_api.get_join_token(group, name)
@@ -81,6 +83,7 @@ def conference(request):
     return render(request, 'conference_app/conference.html', context=context)
     
 def leave(request):
+    request.session.pop('nickname', None)
     request.session.pop('group', None)
     messages.info(request, "You have left the conference.")
     return redirect('/home/')

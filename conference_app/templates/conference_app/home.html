@@ -23,10 +23,12 @@
     <h1>Join Conference</h1>
     <form id="join-form" method="POST">
         {% csrf_token %}
-        <input id="input-name" autocomplete="off" name="input_name" placeholder="Full Name" required/>
+        <input id="input-name" autocomplete="off" name="input_name" placeholder="Join as" />
         <input type="text" id="input-group" autocomplete="off" name="input_group" placeholder="Group ID" required/>
         <button name="action" value="join_room" type="submit">Join Now</button>
     </form>
-    <script></script>
+    <form action="/logout">
+        <button type="submit">Logout</button>
+    </form>
 </body>
 </html>
