@@ -28,7 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://smallest-bedroom-uni-multi.trycloudflare.com',
+    'https://directions-combat-historical-myself.trycloudflare.com',
     'http://localhost:8000',
     'https://untallied-mallory-unstoppably.ngrok-free.dev',
 ]

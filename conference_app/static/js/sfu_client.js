@@ -29,6 +29,14 @@ const room = new Room({
 async function initialize() {
     try {
         await room.connect(livekit_server_url, token);
+        // Handle existing remote participants
+        room.remoteParticipants.forEach((participant) => {
+            participant.trackPublications.forEach((publication) => {
+                if (publication.track) {
+                    attachTrack(publication.track, participant);
+                }
+            });
+        });
         console.log('Connected to Room:', room.name);
 
         // Publish local tracks
@@ -48,14 +56,7 @@ async function initialize() {
             true // isLocal flag
         );
 
-        // Handle existing remote participants
-        room.remoteParticipants.forEach((participant) => {
-            participant.trackPublications.forEach((publication) => {
-                if (publication.track) {
-                    attachTrack(publication.track, participant);
-                }
-            });
-        });
+
 
         updateMemberCountDisplay();
     } catch (error) {
