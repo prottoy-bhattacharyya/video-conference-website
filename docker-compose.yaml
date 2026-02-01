@@ -16,7 +16,7 @@ services:
     command: 
       --dev 
       --bind 0.0.0.0 
-      --node-ip 127.0.0.1
+      --node-ip https://untallied-mallory-unstoppably.ngrok-free.dev
     restart: 
       unless-stopped
 

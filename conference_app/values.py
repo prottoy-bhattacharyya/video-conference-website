@@ -1,3 +1,3 @@
-api_key = "devkey"
-api_secret = "secret"
-livekit_server_url = "http://localhost:7880"
+api_key = "API9r6SPyZXeghQ"
+api_secret = "DMxyVKyyacnxMLNdIoF0Mx4WTNwgXalyOifoXOxKrxS"
+livekit_server_url = "wss://video-conferencing-site-ds6rylzw.livekit.cloud"

@@ -25,11 +25,18 @@ SECRET_KEY = 'django-insecure-cq4e7v&!sm#r9a4mmzttbckm0egr4!a&06&c*g8%2eihq9@%a4
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '.ngrok-free.dev',
+    '.trycloudflare.com', # The dot at the start acts as a wildcard
+]
 
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000',
-    'https://untallied-mallory-unstoppably.ngrok-free.dev',
+    'http://127.0.0.1:8000',
+    'https://*.ngrok-free.dev',
+    'https://*.trycloudflare.com',
 ]
 
 # Application definition
