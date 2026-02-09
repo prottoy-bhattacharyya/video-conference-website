@@ -26,7 +26,7 @@
             <h3 class="text-xl font-bold mb-4 text-center">Join Meeting</h3>
             <form method="POST" class="space-y-4">
                 {% csrf_token %}
-                <input name="input_name" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 outline-none" placeholder="Display Name" required />
+                <input name="input_name" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 outline-none" placeholder="Display Name (Optional)" />
                 <input name="input_group" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 outline-none" placeholder="Enter Room ID" required/>
                 <button name="action" value="join_room" class="w-full border border-indigo-500 text-indigo-400 hover:bg-indigo-500 hover:text-white py-3 rounded-xl font-bold transition">Join Now</button>
             </form>

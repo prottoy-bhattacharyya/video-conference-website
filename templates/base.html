@@ -10,11 +10,58 @@
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: white; }
         .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        
+        /* Smooth fade-out animation */
+        .message-toast { transition: opacity 0.5s ease, transform 0.5s ease; }
+        .fade-out { opacity: 0; transform: translateY(-20px); }
     </style>
     {% block style %}{% endblock %}
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col relative">
+
+    <div id="django-messages" class="fixed top-5 right-5 z-[100] flex flex-col gap-3 w-80">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message-toast flex items-center p-4 rounded-xl shadow-2xl border glass-card 
+                    {% if message.tags == 'success' %} border-emerald-500/50 text-emerald-400
+                    {% elif message.tags == 'error' %} border-red-500/50 text-red-400
+                    {% elif message.tags == 'warning' %} border-amber-500/50 text-amber-400
+                    {% else %} border-indigo-500/50 text-indigo-400 {% endif %}">
+                    
+                    <div class="mr-3">
+                        {% if message.tags == 'success' %}<i data-lucide="check-circle" class="w-5 h-5"></i>
+                        {% elif message.tags == 'error' %}<i data-lucide="alert-circle" class="w-5 h-5"></i>
+                        {% elif message.tags == 'warning' %}<i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                        {% else %}<i data-lucide="info" class="w-5 h-5"></i>{% endif %}
+                    </div>
+
+                    <p class="text-sm font-medium">{{ message }}</p>
+
+                    <button onclick="this.parentElement.remove()" class="ml-auto text-slate-500 hover:text-white transition">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
     {% block content %}{% endblock %}
-    <script>lucide.createIcons();</script>
+
+    <script>
+        document.getElementById("username")?.focus();
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Auto-dismiss messages after 5 seconds
+        document.addEventListener('DOMContentLoaded', () => {
+            const messages = document.querySelectorAll('.message-toast');
+            messages.forEach(msg => {
+                setTimeout(() => {
+                    msg.classList.add('fade-out');
+                    setTimeout(() => msg.remove(), 500); // Remove from DOM after fade
+                }, 5000);
+            });
+        });
+    </script>
 </body>
 </html>

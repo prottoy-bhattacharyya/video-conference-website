@@ -1,17 +1,177 @@
-<!-- myapp/templates/myapp/my_page.html -->
 {% extends 'base.html' %}
-{% load static %}
-
-{% block title %}
-    About Us - My Website
-{% endblock %}
-
-{% block style %}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/signin.css' %}">
-{% endblock %}
+{% block title %}Sign Up - Meet Sync{% endblock %}
 
 {% block content %}
-    <h1>Signin</h1>
+<div class="flex-1 flex items-center justify-center p-6 bg-slate-950">
+    <div class="glass-card w-full max-w-lg p-8 rounded-3xl shadow-2xl transition-all duration-300">
+        
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-indigo-400 tracking-tight">Create Account</h1>
+            <p class="text-slate-400 mt-2">Join Meet Sync and start conferencing.</p>
+        </div>
 
-    <a href="/">Log In</a>
+        <form method="POST" class="space-y-4" id="signup-form">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1 ml-1">Full Name</label>
+                    <div class="relative">
+                        <i data-lucide="user" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                        <input type="text" name="fullname" class="w-full bg-slate-900/50 border border-slate-800 rounded-xl pl-10 pr-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none transition text-slate-200" placeholder="John Doe" required>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1 ml-1">Username</label>
+                    <div class="relative">
+                        <i data-lucide="at-sign" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                        <input id="username-input" type="text" name="username" class="w-full bg-slate-900/50 border border-slate-800 rounded-xl pl-10 pr-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none transition text-slate-200" placeholder="johndoe123" autocomplete="off" required>
+                    </div>
+                    <div id="username-status" class="mt-1.5 px-1 text-[10px] font-bold uppercase tracking-widest min-h-[1rem] transition-all duration-200"></div>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1 ml-1">Email Address</label>
+                <div class="relative">
+                    <i data-lucide="mail" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                    <input type="email" name="email" class="w-full bg-slate-900/50 border border-slate-800 rounded-xl pl-10 pr-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none transition text-slate-200" placeholder="name@company.com" required>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1 ml-1">Password</label>
+                    <div class="relative group">
+                        <i data-lucide="lock" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                        <input type="password" id="password-input" name="password" class="w-full bg-slate-900/50 border border-slate-800 rounded-xl pl-10 pr-10 py-3 focus:ring-2 focus:ring-indigo-500 outline-none transition text-slate-200" placeholder="••••••••" required>
+                        <button type="button" class="toggle-password absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-indigo-400 transition" data-target="password-input">
+                            <i data-lucide="eye" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1 ml-1">Confirm Password</label>
+                    <div class="relative group">
+                        <i data-lucide="shield-check" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                        <input type="password" id="confirm_password-input" class="w-full bg-slate-900/50 border border-slate-800 rounded-xl pl-10 pr-10 py-3 focus:ring-2 focus:ring-indigo-500 outline-none transition text-slate-200" placeholder="••••••••" required>
+                        <button type="button" class="toggle-password absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-indigo-400 transition" data-target="confirm_password-input">
+                            <i data-lucide="eye" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl transition-all duration-300 shadow-lg shadow-indigo-500/20 mt-4">
+                Create Account
+            </button>
+        </form>
+
+        <div class="relative my-8">
+            <div class="absolute inset-0 flex items-center"><span class="w-full border-t border-slate-800"></span></div>
+            <div class="relative flex justify-center text-xs uppercase"><span class="bg-slate-950 px-2 text-slate-500">Or continue with</span></div>
+        </div>
+
+        <button class="w-full flex items-center justify-center gap-3 bg-white hover:bg-slate-100 text-slate-900 font-semibold py-3 rounded-xl transition duration-300">
+            <svg class="w-5 h-5" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            Sign up with Google
+        </button>
+
+        <p class="mt-8 text-center text-slate-400 text-sm">
+            Already have an account? <a href="/" class="text-indigo-400 hover:underline font-medium">Log in</a>
+        </p>
+    </div>
+</div>
+
+<script>
+    // 1. WebSocket & DOM Elements
+    const ws_url = window.location.protocol === 'https:' 
+        ? `wss://${window.location.host}/ws/cheak-username/` 
+        : `ws://${window.location.host}/ws/cheak-username/`;
+    
+    const checkUsernameSocket = new WebSocket(ws_url);
+    const form = document.getElementById('signup-form');
+    const usernameInput = document.getElementById('username-input');
+    const usernameStatus = document.getElementById('username-status');
+    const passwordInput = document.getElementById('password-input');
+    const confirmPasswordInput = document.getElementById('confirm_password-input');
+
+    // 2. Password Toggle Logic
+    document.querySelectorAll('.toggle-password').forEach(button => {
+        button.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            const input = document.getElementById(targetId);
+            const icon = this.querySelector('i');
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                this.innerHTML = '<i data-lucide="eye-off" class="w-4 h-4"></i>';
+            } else {
+                input.type = 'password';
+                this.innerHTML = '<i data-lucide="eye" class="w-4 h-4"></i>';
+            }
+            lucide.createIcons(); // Refresh icons
+        });
+    });
+
+    // 3. Username Availability Logic
+    usernameInput.addEventListener('input', (e) => {
+        const username = e.target.value.trim();
+        if (username.length === 0) {
+            usernameStatus.innerHTML = '';
+            usernameInput.classList.remove('border-emerald-500', 'border-red-500');
+            return;
+        }
+        usernameStatus.innerHTML = '<span class="flex items-center gap-1"><i data-lucide="loader-2" class="w-3 h-3 animate-spin"></i> Checking...</span>';
+        lucide.createIcons();
+        
+        checkUsernameSocket.send(JSON.stringify({
+            'type': 'check_username',
+            'username': username
+        }));
+    });
+
+    checkUsernameSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        if (data.is_available) {
+            usernameStatus.innerHTML = '<span class="flex items-center gap-1 text-emerald-500"><i data-lucide="check" class="w-3 h-3"></i> Available</span>';
+            usernameInput.classList.replace('border-slate-800', 'border-emerald-500');
+            usernameInput.classList.remove('border-red-500');
+        } else {
+            usernameStatus.innerHTML = '<span class="flex items-center gap-1 text-red-500"><i data-lucide="x" class="w-3 h-3"></i> Taken</span>';
+            usernameInput.classList.replace('border-slate-800', 'border-red-500');
+            usernameInput.classList.remove('border-emerald-500');
+        }
+        lucide.createIcons();
+    };
+
+    // 4. Input Validation Styling
+    const validateField = (input, condition) => {
+        if (condition) {
+            input.classList.add('border-emerald-500');
+            input.classList.remove('border-red-500');
+        } else {
+            input.classList.add('border-red-500');
+            input.classList.remove('border-emerald-500');
+        }
+    };
+
+    passwordInput.addEventListener('input', () => validateField(passwordInput, passwordInput.value.length >= 6));
+    confirmPasswordInput.addEventListener('input', () => validateField(confirmPasswordInput, confirmPasswordInput.value === passwordInput.value));
+
+    // 5. Final Form Submission
+    form.addEventListener('submit', (e) => {
+        if(passwordInput.value.length < 6 || passwordInput.value !== confirmPasswordInput.value) {
+            e.preventDefault();
+            alert("Please ensure passwords match and are at least 6 characters.");
+        }
+    });
+</script>
 {% endblock %}
