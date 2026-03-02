@@ -1,4 +1,6 @@
 var ws_url = `wss://${window.location.host}/ws/socket-server/`;
+const connectionStatus = document.getElementById('connection-status');
+
 
 if (window.location.protocol === 'http:') {
     ws_url = `ws://${window.location.host}/ws/socket-server/`;
@@ -22,7 +24,7 @@ form.addEventListener('submit', (e)=>{
         'message': message
     }));
     console.log('Sent:', message);
-    e.target.input_msg.value = '';
+    document.getElementById('input-msg').value = '';
 });
 
 chatSocket.onmessage = async function(e) {
@@ -31,14 +33,16 @@ chatSocket.onmessage = async function(e) {
     
     if (data.type === 'connected') {
         console.log('WebSocket connected:', data.message);
-        messagesContainer.innerHTML += `<div style="color: green;">${data.message}</div>`;
+        connectionStatus.textContent = "Connected";
+        connectionStatus.style.color = "green";
     }
 
     else if (data.type === 'chat_message') {
         display_message(data);
     }
     else if (data.type === 'disconnected') {
-        messagesContainer.innerHTML += `<div style="color: red;">${data.message}</div>`;
+        connectionStatus.textContent = data.message;
+        connectionStatus.style.color = "red";
     }
 };
 
@@ -49,11 +53,14 @@ leaveBtn.onclick = function(){
 
 function display_message(data) {
     var storedName = sessionStorage.getItem('storedName');
-    if (storedName == data.name) {
-        data.name = "You";
-    }
-    messagesContainer.innerHTML += `<div> 
-                                        ${data.name}: ${data.message} 
-                                        [${data.time}]
-                                    </div>`;    
+    let isMe = storedName == data.name;
+    let nameLabel = isMe ? "You" : data.name;
+    messagesContainer.innerHTML += `
+        <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
+            <span class="text-[12px] text-slate-500 mb-1">${nameLabel} • ${data.time}</span>
+            <div class="px-3 py-2 rounded-2xl max-w-[80%] ${isMe ? 'bg-indigo-600 text-white rounded-tr-none' : 'bg-slate-800 text-slate-200 rounded-tl-none'}">
+                ${data.message}
+            </div>
+        </div>`;
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }

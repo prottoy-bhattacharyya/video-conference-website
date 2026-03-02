@@ -2,9 +2,10 @@ import json
 from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
 import datetime
-import redis
+from . import mongo_config
+# import redis
 
-r = redis.Redis(host='localhost', port=6379, decode_responses=True)
+# r = redis.Redis(host='localhost', port=6379, decode_responses=True)
 
 class chatConsumer(WebsocketConsumer):
     def connect(self):
@@ -31,10 +32,20 @@ class chatConsumer(WebsocketConsumer):
 
         data_to_send = {
             'type': 'chat_message',
-            'name': session_data['nickname'],
+            'name': session_data['username'],
             'message': text_data_json['message'],
             'time':  datetime.datetime.now().strftime("%d %b, %Y %I:%M %p"),
         }
+
+        mongo_config.get_messages_collection().insert_one(
+            {
+                "room_id": session_data['group'],
+                "username": session_data['username'],
+                "message": text_data_json['message'],
+                "timestamp": datetime.datetime.now()
+            }
+        )
+
 
         async_to_sync(self.channel_layer.group_send)(
             self.room_group_name,
@@ -65,3 +76,27 @@ class chatConsumer(WebsocketConsumer):
         print(f"Disconnected from group: {self.room_group_name}")
 
         print(f"Disconnected with code: {code}")
+
+
+class cheakUsernameConsumer(WebsocketConsumer):
+    def connect(self):
+        self.accept()
+
+    def receive(self, text_data = None, bytes_data = None):
+        text_data_json = json.loads(text_data)
+        username = text_data_json['username']
+
+        data_to_send = {
+            'type': 'username_check',
+            'is_available': False,
+        }
+        usersCollection = mongo_config.get_users_collection()
+
+        is_availabe = usersCollection.find_one({"username": username})
+
+        if is_availabe:
+            data_to_send['is_available'] = False
+        else:
+            data_to_send['is_available'] = True
+
+        self.send(text_data=json.dumps(data_to_send))
