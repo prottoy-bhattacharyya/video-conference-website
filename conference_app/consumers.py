@@ -32,10 +32,20 @@ class chatConsumer(WebsocketConsumer):
 
         data_to_send = {
             'type': 'chat_message',
-            'name': session_data['nickname'],
+            'name': session_data['username'],
             'message': text_data_json['message'],
             'time':  datetime.datetime.now().strftime("%d %b, %Y %I:%M %p"),
         }
+
+        mongo_config.get_messages_collection().insert_one(
+            {
+                "room_id": session_data['group'],
+                "username": session_data['username'],
+                "message": text_data_json['message'],
+                "timestamp": datetime.datetime.now()
+            }
+        )
+
 
         async_to_sync(self.channel_layer.group_send)(
             self.room_group_name,

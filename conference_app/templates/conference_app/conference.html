@@ -19,13 +19,32 @@
         <aside id="chat-panel" class="fixed top-0 right-0 h-full w-80 bg-slate-900 border-l border-slate-800 flex flex-col translate-x-full transition-transform duration-300 ease-in-out z-20 shadow-2xl">
             <div class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/80 sticky top-0">
                 <span class="font-bold text-slate-200">In-call Messages</span>
+                <span id="connection-status" class="font-bold text-slate-200"></span>
                 <button id="close-chat" class="p-1 hover:bg-slate-800 rounded-full transition text-slate-400">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
             
             <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-4 text-sm scrollbar-hide">
-                </div>
+                {% for msg in chat_history %}
+                    <div class="flex flex-col {% if msg.username == name %}items-end{% else %}items-start{% endif %}">
+                        <span class="text-[12px] text-slate-500 mb-1">
+                            {% if msg.username == name %}You{% else %}{{ msg.username }}{% endif %} • {{ msg.timestamp }}
+                        </span>
+                        
+                        <div class="flex gap-2 {% if msg.username == name %}flex-row-reverse{% endif %}">
+                            <div class="flex-shrink-0 w-6 h-6 rounded-full {% if msg.username == name %}bg-indigo-500{% else %}bg-slate-700{% endif %} flex items-center justify-center text-white text-[10px] font-bold">
+                                {{ msg.username|slice:":1"|upper }}
+                            </div>
+
+                            <div class="px-3 py-2 rounded-2xl max-w-[80%] 
+                                {% if msg.username == name %}bg-indigo-600 text-white rounded-tr-none{% else %}bg-slate-800 text-slate-200 rounded-tl-none{% endif %}">
+                                {{ msg.message }}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
 
             <form id="form" class="p-4 border-t border-slate-800 bg-slate-900 flex gap-2">
                 <input id="input-msg" class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 transition" placeholder="Type a message..." autocomplete="off">
@@ -58,45 +77,6 @@
     </footer>
 </div>
 
-<script>
-    const chatPanel = document.getElementById('chat-panel');
-const chatToggleBtn = document.getElementById('chat-toggle-btn');
-const closeChatBtn = document.getElementById('close-chat');
-const mainVideoArea = document.getElementById('main-video-area');
-const unreadDot = document.getElementById('unread-dot');
-
-let isChatOpen = false;
-
-function toggleChat() {
-    isChatOpen = !isChatOpen;
-    
-    if (isChatOpen) {
-        // Open the panel
-        chatPanel.classList.remove('translate-x-full');
-        unreadDot.classList.add('hidden'); // Clear unread dot when opening
-        
-        // On large screens, push the video area over
-        if (window.innerWidth > 1024) {
-            mainVideoArea.style.marginRight = "320px";
-        }
-    } else {
-        // Close the panel
-        chatPanel.classList.add('translate-x-full');
-        mainVideoArea.style.marginRight = "0";
-    }
-}
-
-chatToggleBtn.addEventListener('click', toggleChat);
-closeChatBtn.addEventListener('click', toggleChat);
-
-// Optional: Automatically show unread dot if chat is closed and a message arrives
-// You would put this inside your chatSocket.onmessage function in ws_chat.js
-/*
-if (!isChatOpen) {
-    unreadDot.classList.remove('hidden');
-}
-*/
-</script>
 
 <script>
     sessionStorage.setItem('storedName', "{{name}}"); 
@@ -104,6 +84,40 @@ if (!isChatOpen) {
     sessionStorage.setItem('storedToken', "{{token}}");
     sessionStorage.setItem('livekitServerUrl', "{{livekit_server_url}}");
 </script>
+
+
+<script>
+    const chatPanel = document.getElementById('chat-panel');
+    const chatToggleBtn = document.getElementById('chat-toggle-btn');
+    const closeChatBtn = document.getElementById('close-chat');
+    const mainVideoArea = document.getElementById('main-video-area');
+    const unreadDot = document.getElementById('unread-dot');
+
+    let isChatOpen = false;
+    function toggleChat() {
+        isChatOpen = !isChatOpen;
+        
+        if (isChatOpen) {
+            // Open the panel
+            chatPanel.classList.remove('translate-x-full');
+            unreadDot.classList.add('hidden'); // Clear unread dot when opening
+            
+            // On large screens, push the video area over
+            if (window.innerWidth > 1024) {
+                mainVideoArea.style.marginRight = "320px";
+            }
+        } else {
+            // Close the panel
+            chatPanel.classList.add('translate-x-full');
+            mainVideoArea.style.marginRight = "0";
+        }
+    }
+
+    chatToggleBtn.addEventListener('click', toggleChat);
+    closeChatBtn.addEventListener('click', toggleChat);
+</script>
+
+
 <script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script>
 <script src="{% static 'js/ws_chat.js' %}"></script>
 <script src="{% static 'js/sfu_client.js' %}"></script>

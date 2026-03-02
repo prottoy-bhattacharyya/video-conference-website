@@ -23,6 +23,7 @@ const room = new Room({
     dynacast: true,
     videoCaptureDefaults: {
         resolution: VideoPresets.h720.resolution, // 720p is usually better for web-based grid stability
+        resolution: VideoPresets.h1080.resolution, // 1080p for higher quality (may cause more CPU usage)
     },
 });
 
@@ -55,8 +56,6 @@ async function initialize() {
             room.localParticipant,
             true // isLocal flag
         );
-
-
 
         updateMemberCountDisplay();
     } catch (error) {

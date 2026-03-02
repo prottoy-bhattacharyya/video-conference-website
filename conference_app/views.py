@@ -46,10 +46,10 @@ def login(request):
             return redirect('/')
 
         # save credentials in session
-        request.session['name'] = user.get('fullname')
+        request.session['fullname'] = user.get('fullname')
         request.session['username'] = user.get('username')
         request.session['password'] = password
-        messages.success(request, "Welcome " + request.session.get('name'))
+        messages.success(request, "Welcome " + request.session.get('fullname'))
         return redirect('/home/')
     return render(request, 'conference_app/login.html')
 
@@ -74,7 +74,7 @@ def signin(request):
         })
 
         # save credentials in session
-        request.session['name'] = fullname
+        request.session['fullname'] = fullname
         request.session['username'] = username
         request.session['password'] = password
         return redirect('/home/')
@@ -87,7 +87,7 @@ def home(request):
         return redirect('/conference/')
 
     if request.method == 'POST':
-        name = request.session.get('username')
+        username = request.session.get('username')
 
         if request.POST.get('action') == 'create_room':
             roomsCollection = mongo_config.get_rooms_collection()
@@ -105,7 +105,7 @@ def home(request):
             x = roomsCollection.insert_one(
                 {
                     "room_id": group,
-                    "host": name,
+                    "host": username,
                     "status": "active",
                     "created_at": datetime.datetime.now()
                 }
@@ -118,7 +118,7 @@ def home(request):
                     "room_id": group,
                     "participants": [
                         {
-                            "username": name,
+                            "username": username,
                             "joined_at": datetime.datetime.now(),
                             "left_at": None
                         }
@@ -126,13 +126,13 @@ def home(request):
                 }
             )
 
-            request.session['nickname'] = name
+            request.session['nickname'] = username
             request.session['group'] = group
-            print(f"{request.session.get('nickname')} created room: {request.session.get('group')}")
+            print(f"{request.session.get('username')} created room: {request.session.get('group')}")
         
         elif request.POST.get('action') == 'join_room':
             nickname = request.POST.get('input_name').strip()
-            group = request.POST.get('input_group').strip()
+            group = request.POST.get('input_group').strip().upper()
 
             roomsCollection = mongo_config.get_rooms_collection()
             room = roomsCollection.find_one(
@@ -148,13 +148,14 @@ def home(request):
             request.session['nickname'] = nickname
             request.session['group'] = group
 
+            # add participant to meeting logs
             meeting_logs_collection = mongo_config.meeting_logs_collection()
             meeting_logs_collection.update_one(
                 {"room_id": group},
                 {
                     "$push": {
                         "participants": {
-                            "username": name,
+                            "username": username,
                             "joined_at": datetime.datetime.now(),
                             "left_at": None
                         }
@@ -166,7 +167,7 @@ def home(request):
         return redirect('/conference/')
     
     context = {
-        'name': request.session.get('name'),
+        'fullname': request.session.get('fullname'),
     }
     return render(request, 'conference_app/home.html', context=context)
 
@@ -176,20 +177,33 @@ def conference(request):
         messages.error(request, "Please enter a valid name and group.")
         return redirect('/home/')
 
-    name = request.session.get('nickname') or request.session.get('name')
+    name = request.session.get('nickname') or request.session.get('username')
     group = request.session.get('group')
 
     token = livekit_api.get_join_token(group, name)
+
+    chat_history = mongo_config.get_messages_collection().find(
+        {
+            "room_id": group
+        }
+    ).sort("timestamp", 1).limit(100)
+
+    chat_history = list(chat_history)
+    
+    for message in chat_history:
+        message['timestamp'] = message.get('timestamp').strftime("%d %b, %Y %I:%M %p")
 
     context = {
         "name": name,
         "group": group,
         "token": token,
-        "livekit_server_url": values.livekit_server_url
+        "livekit_server_url": values.livekit_server_url,
+        "chat_history": chat_history,
     }
     return render(request, 'conference_app/conference.html', context=context)
     
 def leave(request):
+    # update left_at in meeting logs
     meeting_logs_collection = mongo_config.meeting_logs_collection()
     meeting_logs_collection.update_one(
         {
@@ -207,6 +221,30 @@ def leave(request):
     request.session.pop('group', None)
     messages.info(request, "You have left the conference.")
     return redirect('/home/')
+
+def delete_inactive_rooms():
+    meeting_logs_collection = mongo_config.meeting_logs_collection()
+    roomsCollection = mongo_config.get_rooms_collection()
+    result = meeting_logs_collection.find(
+        {
+            "participants": {
+                "$not": {
+                    "$elemMatch": { "left_at": None }
+                }
+            }
+        },
+        {
+            "room_id": 1,
+            "_id": 0
+        }
+    )
+
+    for room in result:
+        roomsCollection.delete_one(
+            {
+                "room_id": room.get('room_id')
+            }
+        )
 
 def logout(request):
     request.session.flush()

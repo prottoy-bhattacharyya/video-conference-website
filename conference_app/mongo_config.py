@@ -1,7 +1,8 @@
 import pymongo
+from . import values
 
 def get_db():
-    client = pymongo.MongoClient("mongodb://localhost:27017/")
+    client = pymongo.MongoClient(values.mongodb_url)
     db = client["video_conference_app"]
     return db
 

@@ -1,4 +1,6 @@
 var ws_url = `wss://${window.location.host}/ws/socket-server/`;
+const connectionStatus = document.getElementById('connection-status');
+
 
 if (window.location.protocol === 'http:') {
     ws_url = `ws://${window.location.host}/ws/socket-server/`;
@@ -31,14 +33,16 @@ chatSocket.onmessage = async function(e) {
     
     if (data.type === 'connected') {
         console.log('WebSocket connected:', data.message);
-        messagesContainer.innerHTML += `<div style="color: green;">${data.message}</div>`;
+        connectionStatus.textContent = "Connected";
+        connectionStatus.style.color = "green";
     }
 
     else if (data.type === 'chat_message') {
         display_message(data);
     }
     else if (data.type === 'disconnected') {
-        messagesContainer.innerHTML += `<div style="color: red;">${data.message}</div>`;
+        connectionStatus.textContent = data.message;
+        connectionStatus.style.color = "red";
     }
 };
 
@@ -51,7 +55,6 @@ function display_message(data) {
     var storedName = sessionStorage.getItem('storedName');
     let isMe = storedName == data.name;
     let nameLabel = isMe ? "You" : data.name;
-    
     messagesContainer.innerHTML += `
         <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
             <span class="text-[12px] text-slate-500 mb-1">${nameLabel} • ${data.time}</span>
