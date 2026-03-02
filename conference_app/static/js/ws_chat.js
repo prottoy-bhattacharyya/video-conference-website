@@ -1,7 +1,6 @@
 var ws_url = `wss://${window.location.host}/ws/socket-server/`;
 const connectionStatus = document.getElementById('connection-status');
 
-
 if (window.location.protocol === 'http:') {
     ws_url = `ws://${window.location.host}/ws/socket-server/`;
 }
@@ -38,6 +37,9 @@ chatSocket.onmessage = async function(e) {
     }
 
     else if (data.type === 'chat_message') {
+        if (isChatOpen === false) {
+            unreadDot.classList.remove('hidden');
+        }
         display_message(data);
     }
     else if (data.type === 'disconnected') {
