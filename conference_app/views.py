@@ -126,12 +126,10 @@ def home(request):
                 }
             )
 
-            request.session['nickname'] = username
             request.session['group'] = group
             print(f"{request.session.get('username')} created room: {request.session.get('group')}")
         
         elif request.POST.get('action') == 'join_room':
-            nickname = request.POST.get('input_name').strip()
             group = request.POST.get('input_group').strip().upper()
 
             roomsCollection = mongo_config.get_rooms_collection()
@@ -145,7 +143,6 @@ def home(request):
                 messages.error(request, "Room not found.")
                 return redirect('/home/')
 
-            request.session['nickname'] = nickname
             request.session['group'] = group
 
             # add participant to meeting logs
@@ -168,6 +165,7 @@ def home(request):
     
     context = {
         'fullname': request.session.get('fullname'),
+        'username': request.session.get('username'),
     }
     return render(request, 'conference_app/home.html', context=context)
 
@@ -177,10 +175,11 @@ def conference(request):
         messages.error(request, "Please enter a valid name and group.")
         return redirect('/home/')
 
-    name = request.session.get('nickname') or request.session.get('username')
+    fullname = request.session.get('fullname')
+    name = request.session.get('username')
     group = request.session.get('group')
-
-    token = livekit_api.get_join_token(group, name)
+    print(f"{name} is joining room: {group}")
+    token = livekit_api.get_join_token(group, fullname)
 
     chat_history = mongo_config.get_messages_collection().find(
         {
