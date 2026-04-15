@@ -2,9 +2,13 @@ import random
 import redis
 import re
 import datetime
+import json
+from django.http import JsonResponse
+from asgiref.sync import async_to_sync
 from django.shortcuts import redirect, render
 from django.contrib import messages
 from . import livekit_api, values, mongo_config
+from django.views.decorators.csrf import csrf_exempt
 # Create your views here.
 
 """
@@ -200,7 +204,58 @@ def conference(request):
         "chat_history": chat_history,
     }
     return render(request, 'conference_app/conference.html', context=context)
-    
+
+@csrf_exempt
+def toggle_record(request):
+    # 1. Check if it's a POST request
+    if request.method != 'POST':
+        return JsonResponse({"error": "Only POST allowed"}, status=405)
+
+    # 2. Extract group from session
+    group = request.session.get('group')
+    if not group:
+        return JsonResponse({"error": "No group found in session"}, status=400)
+
+    # 3. Parse JSON body (since you're using fetch/stringify)
+    try:
+        data = json.loads(request.body)
+        action = data.get('action')
+    except json.JSONDecodeError:
+        print("Invalid JSON body")
+        return JsonResponse({"error": "Invalid JSON body"}, status=400)
+
+    # 4. Handle Start
+    if action == 'start':
+        try:
+            # We must use async_to_sync because start_recording is an async function
+            egress_id = async_to_sync(livekit_api.start_recording)(group)
+            request.session['egress_id'] = egress_id
+            request.session.modified = True # Ensure session saves
+            return JsonResponse({"status": "success", "message": "Recording started", "egress_id": egress_id})
+        except Exception as e:
+            print(f"Error starting recording: {e}")
+            return JsonResponse({"status": "error", "message": str(e)}, status=500)
+
+    # 5. Handle Stop
+    elif action == 'stop':
+        egress_id = request.session.get('egress_id')
+        if not egress_id:
+            return JsonResponse({"status": "error", "message": "No active recording found in session"}, status=404)
+
+        try:
+            success = async_to_sync(livekit_api.stop_room_recording)(egress_id)
+            if success:
+                del request.session['egress_id']
+                return JsonResponse({"status": "success", "message": "Recording stopped"})
+            else:
+                return JsonResponse({"status": "error", "message": "LiveKit failed to stop egress"}, status=500)
+        except Exception as e:
+            print(f"Error stopping recording: {e}")
+            return JsonResponse({"status": "error", "message": str(e)}, status=500)
+
+    # 6. Fallback (This prevents the 'Returned None' error)
+    return JsonResponse({"error": f"Invalid action: {action}"}, status=400)
+
 def leave(request):
     # update left_at in meeting logs
     meeting_logs_collection = mongo_config.meeting_logs_collection()

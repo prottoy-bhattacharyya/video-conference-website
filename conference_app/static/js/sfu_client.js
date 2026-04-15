@@ -4,6 +4,7 @@ const { Room, RoomEvent, Track, VideoPresets } = LivekitClient;
 const video_container = document.getElementById('video-container');
 const messagesContainer = document.getElementById('messages-container');
 const member_count_display = document.getElementById('member-count');
+const recordBtn = document.getElementById('record-btn');
 
 const audio_btn = document.getElementById('audio-btn');
 const video_btn = document.getElementById('video-btn');
@@ -16,6 +17,9 @@ const token = sessionStorage.getItem('storedToken');
 let camera_on = true;
 let mic_on = true;
 let screen_share_on = false;
+
+let isRecording = false;
+
 
 const room = new Room({
     adaptiveStream: true,
@@ -172,6 +176,31 @@ screen_share_btn.addEventListener('click', async () => {
     } catch (error) {
         console.error('Screen share error:', error);
         screen_share_on = false;
+    }
+});
+
+
+
+recordBtn.addEventListener('click', async () => {
+    isRecording = !isRecording;
+    
+    // Toggle UI
+    recordBtn.classList.toggle('bg-red-600', isRecording);
+    recordBtn.classList.toggle('animate-pulse', isRecording);
+
+    // Call your Django view to start/stop Egress
+    const action = isRecording ? 'start' : 'stop';
+    let response = await fetch(`/record/`, {
+        method: 'POST',
+        body: JSON.stringify(
+            { action: action }
+        )
+    });
+
+    if (response.ok) {
+        console.log('Recording toggled successfully.');
+    } else {
+        console.error('Failed to toggle recording.');
     }
 });
 

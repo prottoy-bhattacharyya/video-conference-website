@@ -8,7 +8,7 @@ dependencies = [
     "channels-redis>=4.3.0",
     "channels[daphne]>=4.3.2",
     "django>=6.0.1",
-    "livekit-api>=1.1.0",
+    "livekit>=1.1.0",
     "pymongo>=4.16.0",
     "redis>=7.1.0",
 ]
